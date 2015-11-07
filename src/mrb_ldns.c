@@ -54,6 +54,15 @@ mrb_value mrb_ldns_init(mrb_state *mrb, mrb_value self)
     return self;
 }
 
+/*
+ *
+ * Resolv.each_address("name") do |address|
+ * 
+ * somethingdo... 
+ * end
+ * => nil
+ */
+
 static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
@@ -65,6 +74,12 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
 
     return self;
 }
+
+/*
+ *
+ * Resolv.getaddress("name")
+ * => "address"
+ */
 
 static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 {
@@ -105,6 +120,12 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 
 }
 
+/*
+ *
+ * Resolv.getaddresses("name")
+ * => ["address"]
+ */
+
 static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
@@ -112,6 +133,11 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
     mrb_get_args(mrb,"z",name);
     return mrb_str_new_cstr(mrb,"");
 }
+
+/*
+ * Resolv.getname("address")
+ * => "name"
+ */
 
 static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 {
@@ -121,6 +147,11 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 
     return mrb_str_new_cstr(mrb,"");
 }
+
+/*
+ * Resolv.getnames "address"
+ * => ["name"]
+ */
 
 static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
 {

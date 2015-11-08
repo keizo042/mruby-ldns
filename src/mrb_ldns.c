@@ -119,7 +119,7 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
     ldns_rr_list_sort(a);
 
     l = ldns_rr_list_rr(a, 0);
-    dst = ldns_rr_rdf(l, 0);
+    dst = ldns_rr_rdf(l, 0)
 
     return mrb_str_new_cstr(mrb, ldns_rdf2str(dst));
 

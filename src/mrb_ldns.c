@@ -86,8 +86,9 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
     char *name = NULL;
     ldns_pkt *pkt;
     mrb_ldns_data *data =(mrb_ldns_data*)DATA_PTR(self);
-    ldns_rdf *domain;
+    ldns_rdf *domain, *dst;
     ldns_rr_list *a;
+    ldns_rr *l;
     
     mrb_get_args(mrb,"z",name);
 
@@ -108,15 +109,17 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
         return mrb_nil_value();
     }
 
-    a = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_MX, LDNS_SECTION_ANSWER);
+    a = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER);
 
     if(!a)
     {
         ldns_pkt_free(pkt);
         return mrb_nil_value();
     }
-    printf("%s\n",ldns_rr2str(ldns_rr_list_rr(a,0)));
-    return mrb_str_new_cstr(mrb,"");
+    l = ldns_rr_list_rr(a, 0);
+    dst = ldns_rr_rdf(l, 0)
+
+    return mrb_str_new_cstr(mrb, ldns_rdf2str(dst));
 
 }
 

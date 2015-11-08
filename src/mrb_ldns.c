@@ -83,7 +83,8 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 {
-    char *name = NULL;
+    char *name = NULL,
+         *buf = NULL;
     ldns_pkt *pkt;
     mrb_ldns_data *data =(mrb_ldns_data*)DATA_PTR(self);
     ldns_rdf *domain, *dst;
@@ -103,7 +104,6 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
                             LDNS_RR_TYPE_A,
                             LDNS_RR_CLASS_IN,
                             LDNS_RD);
-
     if(!pkt)
     {
         return mrb_nil_value();
@@ -116,6 +116,8 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
         ldns_pkt_free(pkt);
         return mrb_nil_value();
     }
+    ldns_rr_list_sort(a);
+
     l = ldns_rr_list_rr(a, 0);
     dst = ldns_rr_rdf(l, 0)
 

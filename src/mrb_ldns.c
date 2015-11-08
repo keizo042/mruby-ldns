@@ -146,11 +146,45 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 {
-    char *name = NULL;
-    mrb_ldns_data *data = DATA_PTR(self);
-    mrb_get_args(mrb, "z", name);
+    char *addr = NULL, *rev;
+    const char *arpa = "in-addr.arpa";
+    ldns_rdf *domain = NULL , *dest = NULL;
+    ldns_pkt *pkt;
+    ldns_rr_list records;
+    ldns_rr *record;
 
-    return mrb_str_new_cstr(mrb,"");
+    mrb_ldns_data *data = DATA_PTR(self);
+    mrb_get_args(mrb, "z", addr);
+    rev = (char *)mrb_malloc(mrb, sizeof(addr) + sizeof(arpa));
+    strcpy(rev,addr);
+    strcat(rev,arpa);
+    domain = ldns_dname_new_frm_str(rev);
+    mrb_free(mrb,rev);
+
+    if(!domain)
+    {
+        return mrb_nil_value();
+    }
+
+    pkt = ldns_resolver_query(data->resolver,
+                             domain,
+                             LDNS_RR_TYPE_PTR,
+                             LDNS_RR_CLASS_IN);
+    if(!pkt)
+    {
+        ldns_rdf_deep_free(domain);
+        return mrb_nil_value();
+    }
+
+    records = ldns_rr_list_type(pkt, LDNS_RR_TYPE_PTR, LDNS_RR_CLASS_IN);
+    if(!records)
+    {
+        ldns_rdf_deep_free(domain);
+        ldns_pkt_free(pkt);
+        return mrb_nil_value();
+    }
+    record = ldns_rr_list_rr(records, 0);
+    return mrb_str_new_cstr(mrb, ldns_rr2str(record));
 }
 
 /*

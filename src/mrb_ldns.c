@@ -83,11 +83,11 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 {
-    char name[1024];
+    char *name;
          
     ldns_pkt *pkt = NULL;
     ldns_rdf *domain = NULL, *addr = NULL;
-    ldns_rr_list *a = NULL;
+    ldns_rr_list *records = NULL;
     ldns_rr *record = NULL;
 
     ldns_resolver *resolver = NULL;
@@ -97,7 +97,7 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
         return mrb_nil_value();
     }
     
-    mrb_get_args(mrb,"z",name);
+    mrb_get_args(mrb,"z",&name);
 
     domain = ldns_dname_new_frm_str(name);
     if(!domain)
@@ -110,27 +110,25 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
                             LDNS_RR_TYPE_A,
                             LDNS_RR_CLASS_IN,
                             LDNS_RD);
+    ldns_rdf_deep_free(domain);
     if(!pkt)
     {
-        ldns_rdf_deep_free(domain);
         return mrb_nil_value();
     }
 
-    a = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER);
+    records = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER);
 
-    if(!a)
+    if(!records)
     {
         ldns_pkt_free(pkt);
         ldns_rdf_deep_free(domain);
         return mrb_nil_value();
     }
-    ldns_rr_list_sort(a);
 
-    record = ldns_rr_list_rr(a, 0);
+    record = ldns_rr_list_rr(records, 0);
     addr = ldns_rr_rdf(record, 0);
 
     ldns_pkt_free(pkt);
-    ldns_rdf_deep_free(domain);
     return mrb_str_new_cstr(mrb, ldns_rdf2str(addr));
 
 }

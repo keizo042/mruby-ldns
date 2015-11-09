@@ -70,7 +70,7 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
     mrb_ldns_data *data = (mrb_ldns_data*)DATA_PTR(self);
     ldns_pkt *pkt;
     ldns_rdf *domain;
-    mrb_get_args(mrb, "z*",name,&block);
+    mrb_get_args(mrb, "z*",&name,&block);
 
     return self;
 }
@@ -143,7 +143,7 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
     mrb_ldns_data *data = (mrb_ldns_data *)DATA_PTR(self);
-    mrb_get_args(mrb,"z",name);
+    mrb_get_args(mrb,"z",&name);
     return mrb_str_new_cstr(mrb,"");
 }
 
@@ -154,7 +154,7 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 {
-    char addr[1024];
+    char *addr = NULL;
     char *rev = NULL;
     const char *arpa = "in-addr.arpa";
     ldns_rdf *domain = NULL ;
@@ -232,7 +232,7 @@ static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
     mrb_ldns_data *data = DATA_PTR(self);
-    mrb_get_args(mrb, "z",name);
+    mrb_get_args(mrb, "z", &name);
 
     return self;
 }

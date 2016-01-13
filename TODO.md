@@ -22,7 +22,9 @@ checked methods is implemented
 | Resolv#getname        |  |   
 | Resolv#getnames       |  |   
 | Resolv#DNS            |  |   
-| method                |  |   
+
+| class                |  |   
+|---------------------:|:-:| 
 | DNS.new               |  |   
 | DNS.open              |  |   
 | DNS#close             |  |   
@@ -36,7 +38,9 @@ checked methods is implemented
 | DNS#getresource       |  |   
 | DNS#getresources      |  |   
 | DNS#timeouts=         |  |   
+
 | class implementation              |  |   
+|---------------------:|:-:| 
 | Resolv::DNS::Resource             |  |   
 | Resolv::DNS::Resource#IN::A       |  |   
 | Resolv::DNS::Resource#IN::AAAA    |  |   

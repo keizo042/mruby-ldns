@@ -6,24 +6,17 @@ mruby-ldns
 ## implementation list
 checked methods is implemented  
   
-| method                | mruby-ldns |   
-|:----------------------:|:-------------:| 
-| Resolv class          |   |   
+### method                
+| Resolv class          | implemented?  |   
+|:---------------------:|:-:| 
 | Resolv.each_address   |  |   
 | Resolv.each_name      |  |   
-| Resolv.getadress      |  |   
-| Resolv.getaddresses   |  |   
-| Resolv.getname        |  |   
+| Resolv.getname        | ok |   
 | Resolv.getnames       |  |   
-| Resolv#each_address   |  |   
-| Resolv#each_name      |  |   
-| Resolv#getadress      |  |   
+| Resolv#getadress      | ok|   
 | Resolv#getaddresses   |  |   
-| Resolv#getname        |  |   
-| Resolv#getnames       |  |   
-| Resolv#DNS            |  |   
 
-| class                |  |   
+| Resolv::DNS class    |  |   
 |---------------------:|:-:| 
 | DNS.new               |  |   
 | DNS.open              |  |   
@@ -51,5 +44,14 @@ checked methods is implemented
 | Resolv::DNS::Resource#IN::CNAME   |  |   
 | Resolv::DNS::Resource#IN::TXT     |  |   
 | Resolv::DNS::Resource#IN::SOA     |  |   
+
+| class impl | |
+|---------------------:|:-:| 
+| Resolv::Host  |   |
+| Resolv::IPv4  |   |
+| Resolv::IPv6  |   |
+
 | module                            |  |   
+|---------------------:|:-:| 
 | Resolv::DNS::Resource#IN          |  |   
+

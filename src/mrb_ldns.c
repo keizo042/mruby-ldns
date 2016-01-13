@@ -10,9 +10,11 @@
 
 #include "mrb_ldns_resource.h"
 #include "mrb_ldns_class.h"
+#include "stdint.h"
+#include "stdbool.h"
 
 
-typedef struct {
+typedef struct mrb_ldns_data{
     ldns_resolver *resolver;
 }mrb_ldns_data;
 
@@ -152,6 +154,34 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
  * => "name"
  */
 
+static void name_reverse(char *str)
+{
+    char *tmp = (char *)malloc(sizeof(str) / sizeof(char));
+    int i, j;
+    int count,
+        before;
+    before =0;
+    count = 0;
+    for(i =0; i < strlen(tmp); i++)
+    {
+        if( tmp[i] == '.' ){
+
+            for(j = 0; j < count;j++)
+            {
+                str[before + j] = tmp[j];
+
+            }
+            tmp[j+1] = '.';
+            before = before + count + 1;
+            count = 0;
+
+        }else
+        {
+            count++;
+        }
+    }
+}
+
 static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 {
     char *addr = NULL;
@@ -171,11 +201,13 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 
 
     mrb_get_args(mrb, "z", &addr);
+    name_reverse(addr);
 
-    rev = (char *)mrb_malloc(mrb, sizeof(addr) + sizeof(arpa) + 1);
-    strcpy(rev,addr);
-    strcat(rev,arpa);
-    domain = ldns_dname_new_frm_str(rev);
+    rev = (char *)mrb_malloc(mrb, sizeof(addr) + sizeof(arpa) + 2); 
+    sprintf(rev,"%s.%s",addr,arpa);
+    printf("%s\n",rev);
+    puts("a");
+    domain = ldns_dname_new_frm_str(rev); 
     mrb_free(mrb, rev);
 
     puts("1");
@@ -184,7 +216,7 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
     {
         return mrb_nil_value();
     }
-    puts("1");
+    puts("2");
 
     pkt = ldns_resolver_query(resolver,
                              domain,
@@ -192,11 +224,13 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
                              LDNS_RR_CLASS_IN,
                              LDNS_RD);
     ldns_rdf_deep_free(domain);
+    puts("3");
     if(!pkt)
     {
         return mrb_nil_value();
     }
 
+    puts("4");
     records = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_PTR, LDNS_RR_CLASS_IN);
     if(!records)
     {
@@ -204,6 +238,7 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
         return mrb_nil_value();
     }
 
+    puts("5");
     if(ldns_rr_list_rr_count(records) < 0)
     {
         ldns_pkt_free(pkt);
@@ -215,7 +250,7 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 
     puts("3");
 
-    rev = (char *)malloc( sizeof( ldns_rr2str(record) ) );
+    rev = (char *)malloc( sizeof( ldns_rr2str(record) ) +1);
     strcpy(rev, ldns_rr2str(record));
 
     ldns_pkt_free(pkt);

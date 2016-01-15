@@ -72,7 +72,7 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
     mrb_ldns_data *data = (mrb_ldns_data*)DATA_PTR(self);
     ldns_pkt *pkt;
     ldns_rdf *domain;
-    mrb_get_args(mrb, "z*",&name,&block);
+    mrb_get_args(mrb, "z&",&name,&block);
 
     return self;
 }

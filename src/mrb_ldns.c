@@ -10,6 +10,8 @@
 
 #include "mrb_ldns_resource.h"
 #include "mrb_ldns_class.h"
+#include "mrb_ldns_common.h"
+
 #include "stdint.h"
 #include "stdbool.h"
 
@@ -77,6 +79,11 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
     return self;
 }
 
+static mrb_value mrb_resolv_each_name(mrb_state *mrb, mrb_value self)
+{
+    return self;
+}
+
 /*
  *
  * Resolv.getaddress("name")
@@ -88,44 +95,20 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
     char *name;
          
     ldns_pkt *pkt = NULL;
-    ldns_rdf *domain = NULL, *addr = NULL;
+    ldns_rdf  *addr = NULL;
     ldns_rr_list *records = NULL;
     ldns_rr *record = NULL;
 
     ldns_resolver *resolver = NULL;
-    ldns_status s = ldns_resolver_new_frm_file(&resolver, NULL);
-    if(s != LDNS_STATUS_OK)
-    {
-        return mrb_nil_value();
-    }
     
     mrb_get_args(mrb,"z",&name);
 
-    domain = ldns_dname_new_frm_str(name);
-    if(!domain)
-    {
-        return mrb_nil_value();
-    }
-
-    pkt = ldns_resolver_query(resolver,
-                            domain,
-                            LDNS_RR_TYPE_A,
-                            LDNS_RR_CLASS_IN,
-                            LDNS_RD);
-    ldns_rdf_deep_free(domain);
-    if(!pkt)
-    {
-        return mrb_nil_value();
-    }
-
-    records = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_A, LDNS_SECTION_ANSWER);
-
+    records = mrb_getaddress_rr_list(mrb,resolver,name);
     if(!records)
     {
-        ldns_pkt_free(pkt);
-        ldns_rdf_deep_free(domain);
         return mrb_nil_value();
     }
+
 
     record = ldns_rr_list_rr(records, 0);
     addr = ldns_rr_rdf(record, 0);
@@ -144,8 +127,11 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
+    ldns_rr_list *records;
     mrb_ldns_data *data = (mrb_ldns_data *)DATA_PTR(self);
     mrb_get_args(mrb,"z",&name);
+
+    records = mrb_getaddress_rr_list(mrb, (ldns_resolver *)data->resolver, name);
     return mrb_str_new_cstr(mrb,"");
 }
 
@@ -154,108 +140,34 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
  * => "name"
  */
 
-static void name_reverse(char *str)
-{
-    char *tmp = (char *)malloc(sizeof(str) / sizeof(char));
-    int i, j;
-    int count,
-        before;
-    before =0;
-    count = 0;
-    for(i =0; i < strlen(tmp); i++)
-    {
-        if( tmp[i] == '.' ){
-
-            for(j = 0; j < count;j++)
-            {
-                str[before + j] = tmp[j];
-
-            }
-            tmp[j+1] = '.';
-            before = before + count + 1;
-            count = 0;
-
-        }else
-        {
-            count++;
-        }
-    }
-}
 
 static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 {
     char *addr = NULL;
-    char *rev = NULL;
-    const char *arpa = "in-addr.arpa";
-    ldns_rdf *domain = NULL ;
     ldns_pkt *pkt = NULL;
     ldns_rr_list *records = NULL;
     ldns_rr *record = NULL;
 
     ldns_resolver *resolver;
-    ldns_status s = ldns_resolver_new_frm_file(&resolver, NULL);
-    if(s != LDNS_STATUS_OK)
-    {
-        return mrb_nil_value();
-    }
-
 
     mrb_get_args(mrb, "z", &addr);
-    name_reverse(addr);
 
-    rev = (char *)mrb_malloc(mrb, sizeof(addr) + sizeof(arpa) + 2); 
-    sprintf(rev,"%s.%s",addr,arpa);
-    printf("%s\n",rev);
-    puts("a");
-    domain = ldns_dname_new_frm_str(rev); 
-    mrb_free(mrb, rev);
-
-    puts("1");
-
-    if(!domain)
-    {
-        return mrb_nil_value();
-    }
-    puts("2");
-
-    pkt = ldns_resolver_query(resolver,
-                             domain,
-                             LDNS_RR_TYPE_PTR,
-                             LDNS_RR_CLASS_IN,
-                             LDNS_RD);
-    ldns_rdf_deep_free(domain);
-    puts("3");
-    if(!pkt)
-    {
-        return mrb_nil_value();
-    }
-
-    puts("4");
-    records = ldns_pkt_rr_list_by_type(pkt, LDNS_RR_TYPE_PTR, LDNS_RR_CLASS_IN);
+    records = mrb_getname_rr_list(mrb, resolver, addr);
     if(!records)
     {
-        ldns_pkt_free(pkt);
         return mrb_nil_value();
     }
 
-    puts("5");
     if(ldns_rr_list_rr_count(records) < 0)
     {
-        ldns_pkt_free(pkt);
         ldns_rr_list_deep_free(records);
         return mrb_nil_value();
     }
 
     record = ldns_rr_list_rr(records, 0);
-
-    puts("3");
-
-    rev = (char *)malloc( sizeof( ldns_rr2str(record) ) +1);
-    strcpy(rev, ldns_rr2str(record));
-
     ldns_pkt_free(pkt);
     ldns_rr_list_deep_free(records);
-    return mrb_str_new_cstr(mrb, rev);
+    return mrb_str_new_cstr(mrb, ldns_rr2str(record));
 }
 
 /*
@@ -277,7 +189,8 @@ void mrb_mruby_ldns_gem_init(mrb_state *mrb)
     struct RClass *resolv;
 
     resolv = mrb_define_class(mrb, "Resolv", mrb->object_class);
-    mrb_resolv_resource_define(mrb);
+    mrb_resolv_classes(mrb);
+    mrb_define_resolv_resource(mrb);
 
 
     /*
@@ -288,13 +201,15 @@ void mrb_mruby_ldns_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, resolv, "initalize", mrb_ldns_init , MRB_ARGS_NONE());
 
 
-    mrb_define_class_method(mrb, resolv, "each_address",    mrb_resolv_getaddress,      MRB_ARGS_REQ(2));
+    mrb_define_class_method(mrb, resolv, "each_address",    mrb_resolv_each_address,      MRB_ARGS_REQ(2));
+    mrb_define_class_method(mrb, resolv, "each_name",    mrb_resolv_each_name,      MRB_ARGS_REQ(2));
     mrb_define_class_method(mrb, resolv, "getaddress",      mrb_resolv_getaddress,      MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getaddresses",    mrb_resolv_getaddresses,    MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getname",         mrb_resolv_getname,         MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getnames",        mrb_resolv_getnames,        MRB_ARGS_REQ(1));
     
     mrb_define_method(mrb, resolv, "each_address", mrb_resolv_each_address, MRB_ARGS_REQ(2));
+    mrb_define_method(mrb, resolv, "each_name", mrb_resolv_each_name, MRB_ARGS_REQ(2));
     mrb_define_method(mrb, resolv, "getaddress", mrb_resolv_getaddress,MRB_ARGS_REQ(1));
     mrb_define_method(mrb, resolv, "getaddresses", mrb_resolv_getaddresses, MRB_ARGS_REQ(1));
     mrb_define_method(mrb, resolv, "getname", mrb_resolv_getname, MRB_ARGS_REQ(1));

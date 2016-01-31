@@ -92,8 +92,6 @@ ldns_rr_list *mrb_getname_rr_list(mrb_state *mrb, ldns_resolver *resolver,char *
     name_reverse(addr);
 
     rev = (char *)mrb_malloc(mrb, sizeof(addr) + sizeof(arpa) + 2); 
-    sprintf(rev,"%s.%s",addr,arpa);
-    printf("%s\n",rev);
     domain = ldns_dname_new_frm_str(rev); 
 
 

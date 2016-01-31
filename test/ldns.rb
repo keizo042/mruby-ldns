@@ -1,26 +1,27 @@
+resolv = Resolv.new
 
-assert('') do
+assert('Resolv') do
   assert_equal(resolv.class,Class)
 end
 
 assert('') do
-  Resolv.getname
+  Resolv.getname ""
 end
 
 assert('') do
-  Resolv.getnames
+  Resolv.getnames ""
 end
 
 assert('') do
-  Resolv.getaddress
+  Resolv.getaddress "google.com"
 end
 
 assert('') do
-  Resolv.getaddresses
+  Resolv.getaddresses "google.com"
 end
 
 resolv =Resolv.new
 
 assert('') do
-resolv.getname 
+  resolv.getname 
 end

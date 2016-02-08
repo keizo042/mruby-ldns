@@ -1,19 +1,15 @@
-#include "mruby.h"
-#include "mruby/object.h"
-#include "mruby/class.h"
-#include "mruby/data.h"
-#include "mruby/variable.h"
-#include "mruby/value.h"
-#include "mruby/string.h"
+/*
+ *
+ * class Resolv 
+ *
+ *
+ */
 
-#include "ldns/ldns.h"
-
+#include "mrb_ldns.h"
 #include "mrb_ldns_resource.h"
 #include "mrb_ldns_class.h"
 #include "mrb_ldns_common.h"
 
-#include "stdint.h"
-#include "stdbool.h"
 
 
 typedef struct mrb_ldns_data{
@@ -127,12 +123,25 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
+    int i;
     ldns_rr_list *records;
     mrb_ldns_data *data = (mrb_ldns_data *)DATA_PTR(self);
+    mrb_value ary;
     mrb_get_args(mrb,"z",&name);
 
     records = mrb_getaddress_rr_list(mrb, (ldns_resolver *)data->resolver, name);
-    return mrb_str_new_cstr(mrb,"");
+    if(!records)
+    {
+        return mrb_nil_value();
+    }
+
+    ary = mrb_ary_new(mrb);
+
+    for(i=0; i < ldns_rr_list_rr_count(records); i++)
+    {
+        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, ldns_rr2str( ldns_rr_list_rr(records,i))));
+    }
+    return ary;
 }
 
 /*
@@ -177,11 +186,33 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
 {
-    char *name = NULL;
+    char *addr = NULL;
+    mrb_value ary;
+    int i;
+    ldns_rr_list *records = NULL;
     mrb_ldns_data *data = DATA_PTR(self);
-    mrb_get_args(mrb, "z", &name);
+    ldns_resolver *resolver = data->resolver;
+    mrb_get_args(mrb, "z", &addr);
 
-    return self;
+    records = mrb_getname_rr_list(mrb, resolver, addr);
+    if(!records)
+    {
+        return mrb_nil_value();
+    }
+
+    if(ldns_rr_list_rr_count(records) < 0)
+    {
+        ldns_rr_list_deep_free(records);
+        return mrb_nil_value();
+    }
+
+    ary = mrb_ary_new(mrb);
+    for(i =0; i < ldns_rr_list_rr_count(records) ; i++)
+    {
+        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, ldns_rr2str( ldns_rr_list_rr(records,i))));
+
+    }
+    return ary;
 }
 
 void mrb_mruby_ldns_gem_init(mrb_state *mrb)

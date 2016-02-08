@@ -1,3 +1,10 @@
+/*
+ *
+ * class Resolv::IPv6
+ * class resolv::IPv4
+ *
+ *
+ */
 #include "mruby.h"
 #include "mruby/variable.h"
 

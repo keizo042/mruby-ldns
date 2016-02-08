@@ -1,3 +1,9 @@
+/*
+ *
+ * class DNS::Resolv 
+ *
+ *
+ */
 #include "mrb_ldns_common.h"
 
 static mrb_value mrb_ldns_dns_open(mrb_state *mrb, mrb_value self)

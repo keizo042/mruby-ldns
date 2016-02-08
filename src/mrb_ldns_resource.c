@@ -1,3 +1,19 @@
+/*
+ *
+ *
+ * class Resolv::DNS::Resource
+ * module Resolv::DNS::Resource::IN
+ * class Resolv::DNS::Resource::IN::A
+ * class Resolv::DNS::Resource::IN::AAAA
+ * class Resolv::DNS::Resource::IN::MX
+ * class Resolv::DNS::Resource::IN::TXT
+ * class Resolv::DNS::Resource::IN::SOA
+ * class Resolv::DNS::Reosurce::IN::SRV
+ * class Resolv::DNS::Reosurce::IN::MINFO
+ * class Resolv::DNS::Resource::IN::ANY
+ *
+ *
+ */
 #include "mruby.h"
 #include "ldns/ldns.h"
 

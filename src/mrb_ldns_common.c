@@ -1,8 +1,10 @@
-#include "mruby.h"
-
-#include <ldns/ldns.h>
+/*
+ *
+ * common function 
+ *
+ *
+ */
 #include "mrb_ldns_common.h"
-
 
 
 ldns_rr_list *mrb_getaddress_rr_list(mrb_state *mrb, ldns_resolver *resolver, char *name)

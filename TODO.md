@@ -49,6 +49,7 @@ checked methods is implemented
 |---------------------:|:-:| 
 | Resolv::Host  |   |
 | Resolv::IPv4  |   |
+| Resolv::IPv4.address | |
 | Resolv::IPv6  |   |
 
 | module                            |  |   

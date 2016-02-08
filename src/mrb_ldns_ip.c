@@ -1,4 +1,5 @@
 #include "mruby.h"
+#include "mruby/variable.h"
 
 
 static mrb_value mrb_resolv_ipv4_init(mrb_state *mrb, mrb_value self)
@@ -12,7 +13,7 @@ static mrb_value mrb_resolv_ipv4_to_name(mrb_state *mrb, mrb_value self)
     return mrb_nil_value();
 }
 
-static mrb_valeu mrb_resolv_ipv4_to_s(mrb_state *mrb, mrb_value self)
+static mrb_value mrb_resolv_ipv4_to_s(mrb_state *mrb, mrb_value self)
 {
     return mrb_str_new_cstr(mrb, "");
 }

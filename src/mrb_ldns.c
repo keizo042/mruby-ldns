@@ -62,7 +62,7 @@ mrb_value mrb_ldns_init(mrb_state *mrb, mrb_value self)
  * end
  * => nil
  */
-
+// do not need it
 static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
 {
     char *name = NULL;
@@ -75,6 +75,7 @@ static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
     return self;
 }
 
+// do not need it
 static mrb_value mrb_resolv_each_name(mrb_state *mrb, mrb_value self)
 {
     return self;
@@ -93,7 +94,6 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
     ldns_pkt *pkt = NULL;
     ldns_rdf  *addr = NULL;
     ldns_rr_list *records = NULL;
-    ldns_rr *record = NULL;
 
     ldns_resolver *resolver = NULL;
     
@@ -106,10 +106,8 @@ static mrb_value mrb_resolv_getaddress(mrb_state *mrb, mrb_value self)
     }
 
 
-    record = ldns_rr_list_rr(records, 0);
-    addr = ldns_rr_rdf(record, 0);
+    addr = ldns_rr_rdf(ldns_rr_list_rr(records, 0), 0);
 
-    ldns_pkt_free(pkt);
     return mrb_str_new_cstr(mrb, ldns_rdf2str(addr));
 
 }
@@ -125,21 +123,19 @@ static mrb_value mrb_resolv_getaddresses(mrb_state *mrb, mrb_value self)
     char *name = NULL;
     int i;
     ldns_rr_list *records;
+    ldns_rdf *rdf;
     mrb_ldns_data *data = (mrb_ldns_data *)DATA_PTR(self);
     mrb_value ary;
     mrb_get_args(mrb,"z",&name);
 
     records = mrb_getaddress_rr_list(mrb, (ldns_resolver *)data->resolver, name);
-    if(!records)
-    {
-        return mrb_nil_value();
-    }
 
     ary = mrb_ary_new(mrb);
 
     for(i=0; i < ldns_rr_list_rr_count(records); i++)
     {
-        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, ldns_rr2str( ldns_rr_list_rr(records,i))));
+        rdf = ldns_rr_rdf(ldns_rr_list_rr(records,i), 0);
+        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, ldns_rdf2str(rdf)));
     }
     return ary;
 }
@@ -162,21 +158,20 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
     mrb_get_args(mrb, "z", &addr);
 
     records = mrb_getname_rr_list(mrb, resolver, addr);
+
     if(!records)
     {
         return mrb_nil_value();
     }
-
     if(ldns_rr_list_rr_count(records) < 0)
     {
-        ldns_rr_list_deep_free(records);
         return mrb_nil_value();
     }
 
     record = ldns_rr_list_rr(records, 0);
     ldns_pkt_free(pkt);
-    ldns_rr_list_deep_free(records);
-    return mrb_str_new_cstr(mrb, ldns_rr2str(record));
+
+    return mrb_str_new_cstr(mrb, ldns_rdf2str(ldns_rr_rdf((record), 0)));
 }
 
 /*
@@ -195,21 +190,15 @@ static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
     mrb_get_args(mrb, "z", &addr);
 
     records = mrb_getname_rr_list(mrb, resolver, addr);
-    if(!records)
-    {
-        return mrb_nil_value();
-    }
 
-    if(ldns_rr_list_rr_count(records) < 0)
-    {
-        ldns_rr_list_deep_free(records);
-        return mrb_nil_value();
-    }
 
     ary = mrb_ary_new(mrb);
     for(i =0; i < ldns_rr_list_rr_count(records) ; i++)
     {
-        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, ldns_rr2str( ldns_rr_list_rr(records,i))));
+        mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, 
+                    ldns_rdf2str( 
+                        ldns_rr_rdf( 
+                            ldns_rr_list_rr(records,i),0))));
 
     }
     return ary;
@@ -232,8 +221,8 @@ void mrb_mruby_ldns_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, resolv, "initalize", mrb_ldns_init , MRB_ARGS_NONE());
 
 
-    mrb_define_class_method(mrb, resolv, "each_address",    mrb_resolv_each_address,      MRB_ARGS_REQ(2));
-    mrb_define_class_method(mrb, resolv, "each_name",    mrb_resolv_each_name,      MRB_ARGS_REQ(2));
+    // mrb_define_class_method(mrb, resolv, "each_address",    mrb_resolv_each_address,      MRB_ARGS_REQ(2));
+    // mrb_define_class_method(mrb, resolv, "each_name",    mrb_resolv_each_name,      MRB_ARGS_REQ(2));
     mrb_define_class_method(mrb, resolv, "getaddress",      mrb_resolv_getaddress,      MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getaddresses",    mrb_resolv_getaddresses,    MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getname",         mrb_resolv_getname,         MRB_ARGS_REQ(1));

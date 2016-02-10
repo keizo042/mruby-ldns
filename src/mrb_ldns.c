@@ -56,33 +56,6 @@ mrb_value mrb_ldns_init(mrb_state *mrb, mrb_value self)
 
 /*
  *
- * Resolv.each_address("name") do |address|
- * 
- * somethingdo... 
- * end
- * => nil
- */
-// do not need it
-static mrb_value mrb_resolv_each_address(mrb_state *mrb, mrb_value self)
-{
-    char *name = NULL;
-    mrb_value block = {};
-    mrb_ldns_data *data = (mrb_ldns_data*)DATA_PTR(self);
-    ldns_pkt *pkt;
-    ldns_rdf *domain;
-    mrb_get_args(mrb, "z&",&name,&block);
-
-    return self;
-}
-
-// do not need it
-static mrb_value mrb_resolv_each_name(mrb_state *mrb, mrb_value self)
-{
-    return self;
-}
-
-/*
- *
  * Resolv.getaddress("name")
  * => "address"
  */

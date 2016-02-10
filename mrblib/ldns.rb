@@ -1,13 +1,14 @@
 class Resolv
-  def each_address(name, *proc)
+
+  def self.each_address(name, *proc)
     self.getaddresses(name).each do |address|
-      proc.call(address)
+      yield address
     end
   end
 
-  def each_name(address, *proc)
+  def self.each_name(address, *proc)
     self.getnames(address). each do | name|
-      proc.call(name)
+      yield name
     end
   end
 

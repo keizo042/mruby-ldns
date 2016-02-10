@@ -4,24 +4,24 @@ assert('Resolv') do
   assert_equal(resolv.class,Class)
 end
 
-assert('') do
+assert('Resolv.getname') do
   Resolv.getname ""
 end
 
-assert('') do
+assert('Resolv.getnames') do
   Resolv.getnames ""
 end
 
-assert('') do
+assert('Resolv.getaddress') do
   Resolv.getaddress "google.com"
 end
 
-assert('') do
+assert('Resolv.getaddresses') do
   Resolv.getaddresses "google.com"
 end
 
 resolv =Resolv.new
 
-assert('') do
-  resolv.getname 
+assert('Resolv::getname') do
+  resolv.getname ""
 end

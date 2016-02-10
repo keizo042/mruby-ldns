@@ -194,15 +194,11 @@ void mrb_mruby_ldns_gem_init(mrb_state *mrb)
     mrb_define_method(mrb, resolv, "initalize", mrb_ldns_init , MRB_ARGS_NONE());
 
 
-    // mrb_define_class_method(mrb, resolv, "each_address",    mrb_resolv_each_address,      MRB_ARGS_REQ(2));
-    // mrb_define_class_method(mrb, resolv, "each_name",    mrb_resolv_each_name,      MRB_ARGS_REQ(2));
     mrb_define_class_method(mrb, resolv, "getaddress",      mrb_resolv_getaddress,      MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getaddresses",    mrb_resolv_getaddresses,    MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getname",         mrb_resolv_getname,         MRB_ARGS_REQ(1));
     mrb_define_class_method(mrb, resolv, "getnames",        mrb_resolv_getnames,        MRB_ARGS_REQ(1));
     
-    mrb_define_method(mrb, resolv, "each_address", mrb_resolv_each_address, MRB_ARGS_REQ(2));
-    mrb_define_method(mrb, resolv, "each_name", mrb_resolv_each_name, MRB_ARGS_REQ(2));
     mrb_define_method(mrb, resolv, "getaddress", mrb_resolv_getaddress,MRB_ARGS_REQ(1));
     mrb_define_method(mrb, resolv, "getaddresses", mrb_resolv_getaddresses, MRB_ARGS_REQ(1));
     mrb_define_method(mrb, resolv, "getname", mrb_resolv_getname, MRB_ARGS_REQ(1));

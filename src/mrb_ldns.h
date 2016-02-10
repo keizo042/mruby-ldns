@@ -5,6 +5,14 @@
 #error "mruby-ldns can not use, together with mruby-resolv"
 #endif
 
+
+//#define MRB_LDNS_DEBUG
+#ifdef MRB_LDNS_DEBUG
+#define MRB_LDNS_DEBUG_PRINT(function) printf("file:%s,line:%s,function:%s", __FILE__, __LINE__, function)
+#else
+#define MRB_LDNS_DEBUG_PRINT(function) 
+#endif
+
 #include "mruby.h"
 #include "mruby/object.h"
 #include "mruby/class.h"

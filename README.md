@@ -9,6 +9,13 @@ Ruby Resolv class powered by ldns.
 read TODO.md ,implemented method&class&module.
 
 ## sample
+Resolv.getaddress ""
+Resolv.getname ""
+
+resolver = Resolv.new
+
+resolver.getaddress ""
+resolver.getname ""
 
 Resolv.getaddress ""
 => nil
@@ -16,12 +23,15 @@ Resolv.getaddress ""
 Resolv::DNS.new.getresource
 
 ## Requirement
+on your system
+ldns
 
 mruby
 
 ## Install
+add build_config.rb
 
-add a line to  your build_config.rb file
+    conf.gem :github => "KeizoBookman/mruby-ldns"
 
 ## LICENSE
 MITL

@@ -6,12 +6,6 @@
 #endif
 
 
-//#define MRB_LDNS_DEBUG
-#ifdef MRB_LDNS_DEBUG
-#define MRB_LDNS_DEBUG_PRINT(function) printf("file:%s,line:%s,function:%s", __FILE__, __LINE__, function)
-#else
-#define MRB_LDNS_DEBUG_PRINT(function) 
-#endif
 
 #include "mruby.h"
 #include "mruby/object.h"
@@ -25,4 +19,11 @@
 #include "ldns/ldns.h"
 #include "stdint.h"
 #include "stdbool.h"
+
+#define MRB_LDNS_DEBUG_ENABLE
+#ifdef MRB_LDNS_DEBUG_ENABLE
+#define MRB_LDNS_DEBUG(function) printf("file:%s,line:%d,function:%s\n", __FILE__, __LINE__, function)
+#else
+#define MRB_LDNS_DEBUG(function) 
+#endif
 #endif

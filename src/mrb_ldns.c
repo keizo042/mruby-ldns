@@ -52,7 +52,6 @@ mrb_value mrb_ldns_init(mrb_state *mrb, mrb_value self)
     mrb_data_init(self, data, &mrb_ldns_data_type);
 
 
-    //mrb_get_agrs("|A",&args);
     return self;
 }
 
@@ -138,12 +137,12 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
     mrb_get_args(mrb, "z", &addr);
 
     records = mrb_getname_rr_list(mrb, resolver, addr);
-    if(!records)
+    if(records == NULL)
     {
         return mrb_nil_value();
     }
 
-    if(ldns_rr_list_rr_count(records) <= 0)
+    if(ldns_rr_list_rr_count(records) < 0)
     {
         return mrb_nil_value();
     }
@@ -152,7 +151,7 @@ static mrb_value mrb_resolv_getname(mrb_state *mrb, mrb_value self)
     record = ldns_rr_list_rr(records, 0);
 
     v = mrb_str_new_cstr(mrb, ldns_rdf2str(ldns_rr_rdf(record, 0) ) );
-    ldns_rr_list_deep_free(records);
+    ldns_rr_list_deep_free(records); //maybe?
     return v;
 }
 
@@ -166,21 +165,24 @@ static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
     char *addr = NULL;
     mrb_value ary;
     int i;
+    mrb_int id;
     ldns_rr_list *records = NULL;
     mrb_ldns_data *data = DATA_PTR(self);
     ldns_resolver *resolver = data->resolver;
 
     mrb_get_args(mrb, "z", &addr);
 
+
     records = mrb_getname_rr_list(mrb, resolver, addr);
-    if(!records)
+    if(records == NULL)
     {
         return mrb_nil_value();
     }
 
 
+    // id = mrb_gc_arena_save(mrb);
     ary = mrb_ary_new(mrb);
-    for(i =0; i < ldns_rr_list_rr_count(records) - 1 ; i++)
+    for(i =0; i < ldns_rr_list_rr_count(records)  ; i++)
     {
         mrb_ary_push(mrb, ary, mrb_str_new_cstr(mrb, 
                     ldns_rdf2str( 
@@ -188,6 +190,7 @@ static mrb_value mrb_resolv_getnames(mrb_state *mrb, mrb_value self)
                             ldns_rr_list_rr(records,i),0))));
 
     }
+    // mrb_gc_arena_restore(mrb, id);
 
     ldns_rr_list_deep_free(records);
     return ary;

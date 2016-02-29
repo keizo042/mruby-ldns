@@ -46,7 +46,7 @@ static char* reverse_addr(char *src)
 {
 
     char *res = NULL,
-         *str = (char *)malloc( sizeof(src) / sizeof(char) );
+         *str = (char *)malloc( strlen(src) + 1);
     char **arr = NULL;
     int i=0,
         c=0,
@@ -80,10 +80,11 @@ static char* reverse_addr(char *src)
         arr[c] = res;
         c++;
     }
-    res = (char *)malloc( (strlen(str) + 1) * sizeof(char) );
+    res = (char *)malloc( strlen(str) * sizeof(char) + 1  );
     res[0] = NULL;
 
     c--;
+    strcpy(res,"");
     for(; c >0; c--)
     {
     strcat(res, arr[c]);
@@ -113,22 +114,18 @@ ldns_rr_list *mrb_getname_rr_list(mrb_state *mrb, ldns_resolver *resolver,char *
         return NULL;
     }
 
-    query = (char *)malloc( sizeof(query) / sizeof(char) + sizeof(arpa) / sizeof(char) + 4 * sizeof(char)); 
-    strcat(query, rev);
+    query = (char *)malloc( strlen(rev) + strlen(arpa) + sizeof(char) * 4); 
+    strcpy(query, rev);
     strcat(query,".");
     strcat(query,arpa);
-    printf("query:%s\n",query);
-    //free(rev);
 
     domain = ldns_dname_new_frm_str(query); 
+    free(query);
     if(!domain)
     {
-        MRB_LDNS_DEBUG("domain fail");
         return NULL;
     }
-    //free(query);
 
-    MRB_LDNS_DEBUG("brefore/query");
     pkt = ldns_resolver_query(resolver,
                              domain,
                              LDNS_RR_TYPE_PTR,
